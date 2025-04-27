@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta File Editor</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Edit .meta File</h1>
+    <form id="metaForm">
+        <label for="file_path">File Path:</label>
+        <input type="text" id="file_path" name="file_path" required><br><br>
+
+        <label for="old_value">Old Value:</label>
+        <input type="text" id="old_value" name="old_value"><br><br>
+
+        <label for="new_value">New Value:</label>
+        <input type="text" id="new_value" name="new_value"><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        document.getElementById("metaForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const file_path = document.getElementById("file_path").value;
+            const old_value = document.getElementById("old_value").value || "b00102";
+            const new_value = document.getElementById("new_value").value || "b00100";
+
+            fetch("/edit_meta", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    file_path: file_path,
+                    old_value: old_value,
+                    new_value: new_value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById("message");
+                if (data.message) {
+                    messageDiv.innerHTML = `<p style="color: green;">${data.message}</p>`;
+                } else if (data.error) {
+                    messageDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

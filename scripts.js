@@ -1,15 +1,15 @@
-// API से डेटा लोड करना
-fetch('https://outfit-fix.onrender.com/api/endpoint')  // अपनी API का सही endpoint डालें
+// Fetch data from external API and display it
+fetch('https://outfit-fix.onrender.com/api/endpoint')  // Replace with your actual API endpoint
     .then(response => response.json())
     .then(data => {
         const apiDataDiv = document.getElementById('apiData');
         apiDataDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
     })
     .catch(error => {
-        console.error('डेटा लोड करते समय समस्या:', error);
+        console.error('Error loading data:', error);
     });
 
-// फाइल अपलोड का हैंडलर
+// Handle file upload form submission
 document.getElementById('fileUploadForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -17,17 +17,17 @@ document.getElementById('fileUploadForm').addEventListener('submit', function(ev
     const metaFile = document.getElementById('metaFile').files[0];
     formData.append('metaFile', metaFile);
 
-    fetch('https://outfit-fix.onrender.com/upload', {  // अपनी फाइल अपलोड API का endpoint डालें
+    fetch('https://your-backend-api-url/upload', {  // Replace with your actual backend API endpoint
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        alert('फाइल सफलतापूर्वक अपलोड हो गई!');
+        alert('File uploaded successfully!');
         console.log(data);
     })
     .catch(error => {
-        alert('फाइल अपलोड करते समय समस्या');
-        console.error('त्रुटि:', error);
+        alert('Error uploading file');
+        console.error('Error:', error);
     });
 });

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Meta Hex Editor</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+
+    <h2>Upload .meta File to Edit</h2>
+
+    <input type="file" id="fileInput" accept=".meta"><br><br>
+
+    <label>Original Hex:</label>
+    <input type="text" id="originalHex" value="b00102"><br><br>
+
+    <label>New Hex:</label>
+    <input type="text" id="newHex" value="b00100"><br><br>
+
+    <button onclick="editFile()">Upload and Edit</button>
+
+    <p id="status" style="margin-top: 20px; font-weight: bold;"></p>
+
+    <script>
+        function editFile() {
+            const fileInput = document.getElementById('fileInput');
+            const originalHex = document.getElementById('originalHex').value.trim();
+            const newHex = document.getElementById('newHex').value.trim();
+            const status = document.getElementById('status');
+
+            if (!fileInput.files.length) {
+                status.innerText = "❌ Please select a .meta file.";
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                let arrayBuffer = e.target.result;
+                let byteArray = new Uint8Array(arrayBuffer);
+
+                let originalBytes = hexStringToByteArray(originalHex);
+                let newBytes = hexStringToByteArray(newHex);
+
+                let found = false;
+
+                // Search and replace
+                for (let i = 0; i < byteArray.length - originalBytes.length; i++) {
+                    let match = true;
+                    for (let j = 0; j < originalBytes.length; j++) {
+                        if (byteArray[i + j] !== originalBytes[j]) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) {
+                        found = true;
+                        for (let j = 0; j < newBytes.length; j++) {
+                            byteArray[i + j] = newBytes[j];
+                        }
+                    }
+                }
+
+                if (found) {
+                    const blob = new Blob([byteArray], {type: "application/octet-stream"});
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name;
+                    a.click();
+                    URL.revokeObjectURL(url);
+
+                    status.innerText = "✅ Successfully edited file! Downloading...";
+                } else {
+                    status.innerText = "❌ Required hex pattern not found in file.";
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function hexStringToByteArray(hexString) {
+            let bytes = [];
+            for (let i = 0; i < hexString.length; i += 2) {
+                bytes.push(parseInt(hexString.substr(i, 2), 16));
+            }
+            return bytes;
+        }
+    </script>
+
+</body>
+</html>
